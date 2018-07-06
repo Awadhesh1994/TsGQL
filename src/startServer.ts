@@ -5,8 +5,8 @@ import { createTypeOrmConnection } from "./utility/typeOrmConnection";
 import { GraphQLServer } from "graphql-yoga";
 import * as fs from "fs";
 import * as path from "path";
-import { User } from './entity/User';
-import Redis = require('ioredis');
+import { verificationEmail } from "./routes/confirmEmail";
+import { redis } from "./redis";
 
 export const startServer = async () => {
   const schemas: GraphQLSchema[] = [];
@@ -20,8 +20,6 @@ export const startServer = async () => {
     schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
   });
   
-  const redis = new Redis();
-
   const server = new GraphQLServer({
     schema: mergeSchemas({ schemas }),
     context: ({request}) => ({
@@ -30,17 +28,7 @@ export const startServer = async () => {
     })
   });
 
-  server.express.get('/confirm/:id', async(req, res) => {
-    const { id } = req.params;
-    const userID = await redis.get(id);
-    if(userID){
-      await User.update({id: userID}, {confirmationEmail: true});
-      await redis.del(id);
-      res.send("SUCCESSFULLY VERIFIED !!");
-    } else {
-      res.send("SOME ERROR IN VERIFICATION !!");
-    }
-  });
+  server.express.get('/confirm/:id', verificationEmail);
 
   await createTypeOrmConnection();
   const app = await server.start({
