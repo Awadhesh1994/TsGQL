@@ -1,0 +1,9 @@
+# import Error from "../../shared.graphql"
+
+type Query{
+    awadheh: String
+}
+
+type Mutation {
+    register(username: String!, email: String!, password: String!): [Error!]
+}
