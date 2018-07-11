@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { ourMadeError } from "../../utility/ourMadeError";
 import { emailToShort, emailAlreadyExist, emailInvalid } from './erroeMessages';
 import { conformationOfEmailId } from '../../utility/conformationOfEmailId';
+//import { emailSend } from "../../mailSend";
 
 const registrationQuery = yup.object().shape({
   username: yup.string().min(5).max(255),
@@ -13,23 +14,23 @@ const registrationQuery = yup.object().shape({
 });
 
 export const resolvers: ResolverMap = {
-  Query:{
-    awadheh: () => "hello"
+  Query: {
+    awadhesh: () => "hello"
   },
   Mutation: {
-    register: async (_, args: any, { redis, url }) => {
-      try{
-        await registrationQuery.validate(args, {abortEarly: false});
-      } catch(err){
+    register: async (_, args: GraphQL.IRegisterOnMutationArguments, { redis, url }) => {
+      try {
+        await registrationQuery.validate(args, { abortEarly: false });
+      } catch (err) {
         return ourMadeError(err);
       }
       const { username, email, password } = args;
       const hashPassword = await bcrypt.hash(password, 10);
       const emailAlreadyExits = await User.findOne({
-        where: {email},
+        where: { email },
         select: ["id"]
       });
-      if(emailAlreadyExits){
+      if (emailAlreadyExits) {
         return [
           {
             path: "email",
@@ -43,7 +44,12 @@ export const resolvers: ResolverMap = {
         password: hashPassword
       });
       await u.save();
+
+      // if (process.env.NODE_ENV !== "test") {
+      //   await emailSend(email, await conformationOfEmailId(url, u.id, redis));
+      // }
       await conformationOfEmailId(url, u.id, redis);
+
       return null;
     }
   }

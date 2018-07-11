@@ -34,7 +34,7 @@ test("You have successfully confirm your email id !!", async () => {
     const response = await fetch(url);
     const text = await response.text();
     console.log(text);
-    expect(text).toEqual("SUCCESSFULLY VERIFIED !!");
+    expect(text).toEqual("You are know successfully acess your account !!");
     const users = await User.findOne({ where: { id: userId } });
     expect((users as User).confirmationEmail).toBeTruthy();
     const chunks = url.split("/");

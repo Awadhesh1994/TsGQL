@@ -9,8 +9,8 @@ export const verificationEmail = async(req: Request, res: Response) => {
     if(userID){
       await User.update({id: userID}, {confirmationEmail: true});
       await redis.del(id);
-      res.send("SUCCESSFULLY VERIFIED !!");
+      res.send("You are know successfully acess your account !!");
     } else {
-      res.send("SOME ERROR IN VERIFICATION !!");
+      res.send("You have already use this before !!");
     }
 };

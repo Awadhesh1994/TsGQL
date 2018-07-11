@@ -62,5 +62,4 @@ describe("Register user", async () => {
       ]
     });
   });
-  
 });
